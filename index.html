@@ -2,16 +2,418 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1e4ed8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>حاسبة تمويل مايلو</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
         
+        /* إضافة خط Apple Color Emoji */
+        * {
+            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Apple Color Emoji', sans-serif;
+        }
+
+        /* تحديث الأيقونات في الأزرار والعناوين */
+        .section-title i, 
+        button i {
+            font-family: 'Apple Color Emoji', sans-serif;
+            font-style: normal;
+        }
+
+        /* CSS Reset for better mobile experience */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+        
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #f8fafc;
+            background: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            /* Add safe area padding for notched devices */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* Improve touch targets for mobile */
+        button, 
+        input, 
+        .offer-card,
+        .installment-card,
+        .footer-contact {
+            touch-action: manipulation;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            body {
+                background: #f8fafc;
+                padding: 0;
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* تحسين الهيدر */
+            header.gradient-bg {
+                background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+                padding: 1rem;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                box-shadow: 0 4px 20px rgba(30, 78, 216, 0.15);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            header .container.mx-auto {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 0;
+                max-width: 100%;
+                position: relative;
+            }
+
+            header .logo {
+                width: 120px;
+                height: auto;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                filter: brightness(0) invert(1);
+                opacity: 0.95;
+            }
+
+            header .logo:hover {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            header button {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            /* تحسين الفوتر */
+            .footer {
+                background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+                padding: 1.5rem 0;
+                margin-top: auto;
+                width: 100%;
+            }
+
+            .footer-content {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+
+            .footer-logo {
+                width: 100px;
+                height: auto;
+                margin-bottom: 0.5rem;
+            }
+
+            .footer-contact {
+                background: rgba(255, 255, 255, 0.1);
+                padding: 0.75rem 1rem;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                transition: all 0.3s ease;
+            }
+
+            .footer-contact:hover {
+                background: rgba(255, 255, 255, 0.15);
+                transform: translateY(-2px);
+            }
+
+            .footer-divider {
+                width: 80%;
+                height: 1px;
+                background: rgba(255, 255, 255, 0.2);
+                margin: 1.5rem auto;
+            }
+
+            /* تحسين المحتوى الرئيسي */
+            .main-content {
+                padding-top: 90px;
+                min-height: calc(100vh - 90px);
+            }
+
+            .container.mx-auto {
+                width: 100%;
+                max-width: 1200px;
+                padding: 0 1rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* تحسين العروض والكروت */
+            #offers-container,
+            #results-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .offer-card,
+            .installment-card {
+                width: 92%;
+                max-width: 400px;
+                margin: 0.75rem auto;
+                transform: none !important;
+                position: relative;
+                left: 0 !important;
+                right: 0 !important;
+            }
+
+            .offer-card.featured,
+            .installment-card.featured {
+                transform: none !important;
+                margin: 0.75rem auto;
+            }
+
+            /* إخفاء قسم المقارنة */
+            .comparison-section,
+            .desktop-comparison-table,
+            .mobile-comparison-table {
+                display: none !important;
+            }
+
+            /* تحسين النموذج */
+            .w-full.max-w-md.bg-white.rounded-xl.shadow-lg.p-8.mx-auto.mb-12 {
+                padding: 1.25rem;
+                margin: 1rem auto;
+                width: 92%;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            /* تحسين الأزرار */
+            button {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 0.95rem;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                transition: all 0.3s ease;
+            }
+
+            button.gradient-bg {
+                background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+                color: white;
+                border: none;
+                box-shadow: 0 2px 8px rgba(30, 78, 216, 0.2);
+            }
+
+            /* تحسين العناوين */
+            .section-header {
+                margin: 1rem 0;
+                text-align: center;
+            }
+
+            .section-title {
+                font-size: 1rem;
+                padding: 0.6rem 1.25rem;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+                color: white;
+                border-radius: 50px;
+                box-shadow: 0 2px 8px rgba(30, 78, 216, 0.2);
+            }
+
+            .section-subtitle {
+                font-size: 0.85rem;
+                color: #64748b;
+                margin-top: 0.5rem;
+            }
+
+            /* تحسين الكروت المميزة */
+            .offer-card.featured,
+            .installment-card.featured {
+                background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+                transform: none !important;
+                margin: 0.75rem auto !important;
+            }
+
+            .featured-emoji {
+                width: 25px;
+                height: 25px;
+            }
+
+            .featured-emoji.top-right {
+                top: -12px;
+                right: 8px;
+            }
+
+            .featured-emoji.top-left {
+                top: -12px;
+                left: 8px;
+            }
+
+            /* تحسين الملخص */
+            .bg-gray-50 {
+                padding: 0.75rem;
+                border-radius: 8px;
+                margin-bottom: 0.5rem;
+            }
+
+            /* تحسين عناصر الكارت */
+            .installment-item {
+                padding: 0.75rem;
+                margin-bottom: 0.5rem;
+                background: rgba(59, 130, 246, 0.05);
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .installment-label {
+                font-size: 0.85rem;
+                color: #64748b;
+            }
+
+            .installment-value {
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: #1e4ed8;
+            }
+
+            /* تحسين وصف العرض */
+            .offer-description {
+                font-size: 0.85rem;
+                margin: 0.75rem 0;
+                line-height: 1.4;
+                color: #64748b;
+            }
+
+            /* تحسين الأزرار */
+            button {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+                border-radius: 8px;
+                margin-top: 0.75rem;
+            }
+
+            /* تحسين المسافات في الحاويات */
+            .container.mx-auto {
+                padding: 0.5rem;
+            }
+
+            /* تحسين عرض الكروت المميزة */
+            .offer-card.featured,
+            .installment-card.featured {
+                transform: none !important;
+                margin: 0.5rem auto;
+            }
+
+            .featured-emoji {
+                width: 25px;
+                height: 25px;
+            }
+
+            .featured-emoji.top-right {
+                top: -12px;
+                right: 8px;
+            }
+
+            .featured-emoji.top-left {
+                top: -12px;
+                left: 8px;
+            }
+
+            /* تحسين عرض النتائج */
+            #results-container,
+            #offers-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 0.5rem;
+            }
+
+            /* تحسين العناوين */
+            .section-title {
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .section-subtitle {
+                font-size: 0.85rem;
+                margin: 0.5rem 0;
+            }
+
+            /* تحسين الملخص */
+            .bg-gray-50 {
+                padding: 0.75rem;
+                border-radius: 8px;
+                margin-bottom: 0.5rem;
+            }
+
+            .text-gray-600 {
+                font-size: 0.85rem;
+            }
+
+            .font-semibold {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* iOS specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                /* Prevent rubber band effect */
+                position: fixed;
+                width: 100%;
+                height: 100%;
+            }
+
+            input {
+                /* Fix for iOS input shadows */
+                -webkit-appearance: none;
+                appearance: none;
+            }
+        }
+
+        /* Android specific fixes */
+        @supports not (-webkit-touch-callout: none) {
+            input {
+                /* Better contrast for Android */
+                background-color: #ffffff;
+            }
         }
         
         .logo {
@@ -20,17 +422,149 @@
         }
         
         .gradient-bg {
-            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
         }
         
         .installment-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.1);
             transition: all 0.3s ease;
-            border-left: 4px solid #3b82f6;
+            position: relative;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
         
         .installment-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .installment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+        
+        .offer-badge {
+            position: relative;
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .installment-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1e4ed8;
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .installment-details {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .installment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .highlight-item {
+            background: #1e4ed8 !important;
+            color: white !important;
+            padding: 1.25rem !important;
+            border-radius: 12px !important;
+            margin: 0.75rem 0 1.25rem !important;
+            box-shadow: 0 4px 15px -3px rgba(30, 78, 216, 0.2) !important;
+        }
+
+        .highlight-item .installment-label {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 0.9rem !important;
+        }
+
+        .highlight-item .installment-value {
+            color: white !important;
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .installment-card.featured .highlight-item {
+            background: rgba(255, 255, 255, 0.25) !important;
+            backdrop-filter: blur(5px) !important;
+        }
+        
+        .installment-label {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        
+        .installment-value {
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 1.1rem;
+        }
+        
+        .installment-total {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .installment-total:hover {
+            background: rgba(59, 130, 246, 0.15);
+        }
+        
+        .installment-total .installment-label {
+            color: #1e4ed8;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .installment-total .installment-value {
+            color: #1e4ed8;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .highlight-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px -5px rgba(30, 78, 216, 0.25);
+        }
+
+        .installment-item:not(.highlight-item):hover {
+            background: #f1f5f9;
+            transform: translateX(-3px);
         }
         
         .admin-panel {
@@ -81,18 +615,6 @@
             to {bottom: 0; opacity: 0;}
         }
         
-        .offer-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            border-radius: 8px;
-            padding: 4px 8px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 1;
-        }
-        
         .interest-offer {
             background-color: #ef4444;
         }
@@ -111,47 +633,422 @@
         
         .offer-card {
             position: relative;
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(59, 130, 246, 0.1);
             transition: all 0.3s ease;
-            overflow: hidden;
+            overflow: visible;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            width: 92%;
+            margin: 0 auto;
         }
-        
+
         .offer-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
         }
-        
-        /* Tooltip styling */
-        .tooltip {
-            position: relative;
-            display: inline-block;
+
+        .offer-card.featured {
+            background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+            border: none;
+            box-shadow: 
+                0 20px 25px -5px rgba(255, 94, 58, 0.25),
+                0 0 15px 5px rgba(255, 149, 0, 0.1);
+            overflow: visible;
         }
-        
-        .tooltip .tooltip-text {
-            visibility: hidden;
-            width: 200px;
-            background-color: #1e293b;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 8px;
+
+        .offer-card.featured:hover {
+            box-shadow: 
+                0 25px 30px -5px rgba(255, 94, 58, 0.3),
+                0 0 20px 5px rgba(255, 149, 0, 0.15);
+        }
+
+        .offer-card.featured::before {
+            content: '';
             position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 16px;
             z-index: 1;
-            bottom: 125%;
-            right: 50%;
-            transform: translateX(50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 12px;
         }
-        
-        .tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
+
+        .offer-card.featured .installment-title {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            backdrop-filter: blur(5px);
         }
-        
-        /* Responsive fixes */
+
+        .offer-card.featured .offer-description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .offer-card.featured .bg-gray-50,
+        .offer-card.featured .installment-item {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        .offer-card.featured .text-gray-600,
+        .offer-card.featured .installment-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .offer-card.featured .font-semibold,
+        .offer-card.featured .installment-value {
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .offer-card.featured button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .offer-card.featured button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 94, 58, 0.3);
+        }
+
+        .featured-emoji {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            z-index: 10;
+            background-image: url('https://em-content.zobj.net/source/apple/354/fire_1f525.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: drop-shadow(0 2px 8px rgba(255, 94, 58, 0.4));
+        }
+
+        .featured-emoji.top-right {
+            top: -20px;
+            right: 15px;
+            transform: scale(1.2);
+            animation: float-right 3s ease-in-out infinite;
+        }
+
+        .featured-emoji.top-left {
+            top: -20px;
+            left: 15px;
+            transform: scale(1.2);
+            animation: float-left 3s ease-in-out infinite;
+        }
+
+        @keyframes float-right {
+            0%, 100% {
+                transform: scale(1.2) translateY(0) rotate(5deg);
+            }
+            50% {
+                transform: scale(1.2) translateY(-5px) rotate(-5deg);
+            }
+        }
+
+        @keyframes float-left {
+            0%, 100% {
+                transform: scale(1.2) translateY(0) rotate(-5deg);
+            }
+            50% {
+                transform: scale(1.2) translateY(-5px) rotate(5deg);
+            }
+        }
+
+        /* تحسين تأثير التوهج للكارت المميز */
+        .offer-card.featured::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+            border-radius: 18px;
+            z-index: -1;
+            filter: blur(8px);
+            opacity: 0.5;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .offer-card .installment-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .offer-card .installment-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #3b82f6;
+            padding: 0.75rem 1.5rem;
+            background: #F3F6FF;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .offer-card .offer-badge {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            color: white;
+            margin-right: auto;
+        }
+
+        /* تحديث تنسيق حاوية العروض */
+        #offers-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* تحسينات للموبايل */
+        @media (max-width: 768px) {
+            /* تحسين عرض الحاويات */
+            #offers-container,
+            #results-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                padding: 0.5rem;
+                margin: 0 auto;
+            }
+
+            .container.mx-auto {
+                width: 100%;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* تحسين عرض الكروت */
+            .offer-card,
+            .installment-card {
+                width: 92%;
+                max-width: none;
+                margin: 0.75rem auto;
+            }
+
+            .offer-card.featured,
+            .installment-card.featured {
+                width: 92%;
+                margin: 0.5rem auto;
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%) !important;
+            }
+
+            /* تحسين عرض المحتوى الرئيسي */
+            .main-content {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* تحسين عرض الأقسام */
+            .bg-white.rounded-xl.shadow-lg.p-6.max-w-4xl.mx-auto,
+            .w-full.max-w-md.bg-white.rounded-xl.shadow-lg.p-8.mx-auto.mb-12 {
+                width: 100%;
+                margin: 1rem auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* تحسين عرض النموذج */
+            form,
+            .space-y-6 {
+                width: 92%;
+                margin: 0 auto;
+            }
+
+            /* تحسين عرض الكروت المميزة */
+            .offer-card.featured {
+                width: 92%;
+                margin: 0 auto;
+            }
+
+            .offer-card.featured:hover,
+            .offer-card.featured:active,
+            .offer-card.featured:focus {
+                transform: none !important;
+            }
+
+            /* إزالة أي margin أو padding إضافي */
+            .container.mx-auto,
+            .bg-white.rounded-xl.shadow-lg {
+                padding: 0;
+                margin: 0;
+            }
+
+            .offer-card .installment-header {
+                flex-direction: row; /* تغيير اتجاه العناصر لتكون أفقية */
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            }
+
+            .offer-card .offer-badge {
+                margin: 0;
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .offer-card .installment-title {
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .offer-description {
+                text-align: right; /* تغيير محاذاة النص للجهة اليمنى */
+                margin: 1rem 0;
+                font-size: 0.95rem;
+            }
+
+            .offer-card .installment-item {
+                text-align: right; /* تغيير محاذاة النص للجهة اليمنى */
+                flex-direction: row; /* تغيير اتجاه العناصر لتكون أفقية */
+                justify-content: space-between;
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .offer-card .installment-label,
+            .offer-card .installment-value {
+                width: auto;
+                text-align: right;
+            }
+
+            /* تحسين أحجام الخطوط */
+            .offer-card .installment-label {
+                font-size: 0.9rem;
+            }
+
+            .offer-card .installment-value {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+
+            /* تحسين المسافات بين العناصر */
+            .offer-card .space-y-4 {
+                margin-top: 1.5rem;
+            }
+
+            .offer-card button {
+                margin-top: 1.5rem;
+                padding: 1rem;
+                font-size: 1rem;
+            }
+
+            /* تناسق الظلال مع كروت التفاصيل */
+            .offer-card {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+
+            .offer-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+            }
+
+            /* تحسين مظهر الكروت المميزة */
+            .offer-card.featured {
+                transform: scale(1.02);
+                padding: 1.5rem;
+            }
+
+            .featured-emoji {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        /* تحديث تنسيقات الفوتر */
+        .footer {
+            background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+            color: #ffffff;
+            padding: 2.5rem 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-logo {
+            width: 180px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: brightness(0) invert(1);
+        }
+
+        .footer-contact {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-contact:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+            margin: 2rem 0;
+        }
+
         @media (max-width: 640px) {
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-logo {
+                margin: 0 auto 1rem;
+            }
+
             .logo {
                 width: 90px;
             }
@@ -167,13 +1064,8 @@
             .admin-dashboard-grid {
                 grid-template-columns: 1fr !important;
             }
-            
-            .tooltip .tooltip-text {
-                width: 150px;
-                font-size: 10px;
-            }
         }
-        
+
         /* Animation for calculator */
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -206,327 +1098,1580 @@
                 opacity: 0;
             }
         }
+
+        /* تحسين عرض الكروت في الشاشات المختلفة */
+        @media (min-width: 768px) {
+            #results-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .installment-card {
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .installment-card {
+                margin: 1rem;
+            }
+        }
+
+        /* تنسيق عنوان تفاصيل التمويل */
+        .finance-details-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .finance-details-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+            color: white;
+            border-radius: 50px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px -1px rgba(30, 78, 216, 0.2);
+        }
+
+        .finance-details-title i {
+            font-size: 1.5rem;
+        }
+
+        .finance-details-subtitle {
+            color: #64748b;
+            margin-top: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        /* تنسيق موحد للعناوين الرئيسية */
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .section-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+            color: white;
+            border-radius: 50px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px -1px rgba(30, 78, 216, 0.2);
+        }
+
+        .section-title i {
+            font-size: 1.5rem;
+        }
+
+        .section-subtitle {
+            color: #64748b;
+            margin-top: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.1rem;
+                padding: 0.6rem 1.25rem;
+            }
+
+            .section-title i {
+                font-size: 1.25rem;
+            }
+
+            .section-subtitle {
+                font-size: 0.9rem;
+                margin: 0.5rem 1rem;
+            }
+        }
+
+        /* Admin Dashboard Styles */
+        #admin-dashboard {
+            display: none;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        #admin-dashboard .section-header {
+            margin-bottom: 2rem;
+        }
+
+        #admin-dashboard .bg-white {
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        #admin-dashboard table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        #admin-dashboard th {
+            background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+            color: white;
+            font-weight: 600;
+            text-align: right;
+            padding: 1rem;
+        }
+
+        #admin-dashboard td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        #admin-dashboard tr:last-child td {
+            border-bottom: none;
+        }
+
+        #admin-dashboard input[type="number"],
+        #admin-dashboard input[type="text"],
+        #admin-dashboard input[type="password"],
+        #admin-dashboard select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        #admin-dashboard input[type="number"]:focus,
+        #admin-dashboard input[type="text"]:focus,
+        #admin-dashboard input[type="password"]:focus,
+        #admin-dashboard select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        #admin-dashboard button {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        #admin-dashboard button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* تحسين عرض لوحة التحكم على الموبايل */
+        @media (max-width: 768px) {
+            #admin-dashboard {
+                padding: 1rem;
+            }
+
+            #admin-dashboard table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #admin-dashboard th,
+            #admin-dashboard td {
+                white-space: nowrap;
+                min-width: 120px;
+            }
+        }
+
+        .offer-card .installment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        .offer-card .installment-details {
+            margin-bottom: 1rem;
+        }
+
+        .offer-card .installment-label {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-right: 0;
+        }
+
+        .offer-card .installment-value {
+            font-weight: 600;
+            color: #1e4ed8;
+            font-size: 1rem;
+            margin-right: auto;
+            padding-right: 1rem;
+        }
+
+        .offer-card .installment-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .offer-card .installment-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #3b82f6;
+            padding: 0.5rem 1rem;
+            background: #F3F6FF;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .offer-card .offer-badge {
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.5rem 1.25rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            color: white;
+        }
+
+        .offer-card .installment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        .offer-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin: 1rem 0 2rem;
+            text-align: right;
+        }
+
+        .offer-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .offer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .offer-label {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .offer-value {
+            font-weight: 600;
+            color: #1e4ed8;
+            font-size: 1rem;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #f3f6ff;
+            color: #3b82f6;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .calculate-btn:hover {
+            background: #e5ebff;
+            transform: translateY(-2px);
+        }
+
+        .emoji-icon {
+            display: inline-block;
+            width: 1.5em;
+            height: 1.5em;
+            vertical-align: middle;
+            margin: 0 0.2em;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .emoji-icon.large {
+            width: 2em;
+            height: 2em;
+        }
+
+        button .emoji-icon {
+            margin-left: 0.5em;
+        }
+
+        .installment-card.featured {
+            background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+            border: none;
+            transform: scale(1.02);
+            box-shadow: 
+                0 20px 25px -5px rgba(255, 94, 58, 0.25),
+                0 0 15px 5px rgba(255, 149, 0, 0.1);
+            overflow: visible;
+            position: relative;
+        }
+
+        .installment-card.featured::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 16px;
+            z-index: 1;
+        }
+
+        .installment-card.featured .installment-title {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+
+        .installment-card.featured .installment-item {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        .installment-card.featured .installment-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .installment-card.featured .installment-value {
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .installment-card.featured .installment-total {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .installment-card.featured .installment-total .installment-label,
+        .installment-card.featured .installment-total .installment-value {
+            color: white;
+        }
+
+        .installment-card.featured::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+            border-radius: 18px;
+            z-index: -1;
+            filter: blur(8px);
+            opacity: 0.5;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        /* تحسينات إضافية للموبايل */
+        @media (max-width: 768px) {
+            #offers-container {
+                grid-template-columns: 1fr;
+                padding: 0.5rem;
+                gap: 1.5rem;
+                width: 100%;
+            }
+
+            .main-content > .container {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .offer-card {
+                width: 92%; /* تعديل العرض للتوسيط */
+                margin-left: auto;
+                margin-right: auto;
+                padding: 1.5rem;
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            /* تحسين مظهر الكروت المميزة */
+            .offer-card.featured {
+                width: 92%;
+                transform: translateX(-50%) scale(1.02);
+            }
+
+            .offer-card.featured:hover {
+                transform: translateX(-50%) scale(1.03);
+            }
+
+            /* تأكيد توسيط القسم بالكامل */
+            .bg-white.rounded-xl.shadow-lg.p-6.max-w-4xl.mx-auto {
+                width: 100%;
+                padding: 1rem 0;
+            }
+
+            .offer-card .installment-header {
+                flex-direction: row; /* تغيير اتجاه العناصر لتكون أفقية */
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            }
+
+            .offer-card .offer-badge {
+                margin: 0;
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .offer-card .installment-title {
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .offer-description {
+                text-align: right; /* تغيير محاذاة النص للجهة اليمنى */
+                margin: 1rem 0;
+                font-size: 0.95rem;
+            }
+
+            .offer-card .installment-item {
+                text-align: right; /* تغيير محاذاة النص للجهة اليمنى */
+                flex-direction: row; /* تغيير اتجاه العناصر لتكون أفقية */
+                justify-content: space-between;
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .offer-card .installment-label,
+            .offer-card .installment-value {
+                width: auto;
+                text-align: right;
+            }
+
+            /* تحسين أحجام الخطوط */
+            .offer-card .installment-label {
+                font-size: 0.9rem;
+            }
+
+            .offer-card .installment-value {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+
+            /* تحسين المسافات بين العناصر */
+            .offer-card .space-y-4 {
+                margin-top: 1.5rem;
+            }
+
+            .offer-card button {
+                margin-top: 1.5rem;
+                padding: 1rem;
+                font-size: 1rem;
+            }
+
+            /* تناسق الظلال مع كروت التفاصيل */
+            .offer-card {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+
+            .offer-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+            }
+
+            /* تحسين مظهر الكروت المميزة */
+            .offer-card.featured {
+                transform: scale(1.02);
+                padding: 1.5rem;
+            }
+
+            .featured-emoji {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* تحسين عرض الحاويات */
+            #offers-container,
+            #results-container {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            /* تحسين حجم وتنسيق الكروت */
+            .offer-card,
+            .installment-card {
+                width: 92%;
+                margin-left: auto;
+                margin-right: auto;
+                padding: 1rem;
+            }
+
+            .offer-card.featured {
+                width: 92%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            /* تحسين العناصر داخل الكروت */
+            .installment-header {
+                margin-bottom: 1rem;
+                padding-bottom: 0.75rem;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .installment-title {
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+                white-space: nowrap;
+            }
+
+            .offer-badge {
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+                white-space: nowrap;
+            }
+
+            .installment-item {
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .installment-label {
+                font-size: 0.9rem;
+            }
+
+            .installment-value {
+                font-size: 1rem;
+                text-align: left;
+            }
+
+            /* تحسين المسافات في العناصر الأخرى */
+            .comparison-section {
+                width: 92%;
+                margin: 1rem auto;
+            }
+
+            .w-full.max-w-md.bg-white.rounded-xl.shadow-lg.p-8.mx-auto.mb-12 {
+                width: 92%;
+                margin: 1rem auto;
+                padding: 1.25rem;
+            }
+
+            /* تحسين حجم الإيموجي */
+            .featured-emoji {
+                width: 30px;
+                height: 30px;
+            }
+
+            .featured-emoji.top-right {
+                top: -15px;
+                right: 10px;
+            }
+
+            .featured-emoji.top-left {
+                top: -15px;
+                left: 10px;
+            }
+
+            /* تحسين أحجام الخط في العناوين */
+            .section-title {
+                font-size: 1.1rem;
+                padding: 0.6rem 1.25rem;
+            }
+
+            .section-subtitle {
+                font-size: 0.9rem;
+                margin: 0.5rem 1rem;
+            }
+
+            /* تحسين المسافات في الأزرار */
+            button {
+                padding: 0.75rem;
+                font-size: 1rem;
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            /* تحسين عرض النص */
+            .offer-description {
+                font-size: 0.9rem;
+                margin: 0.75rem 0;
+                line-height: 1.5;
+            }
+        }
+
+        /* تحسين عرض الكروت في نسخة سطح المكتب */
+        #offers-container,
+        #results-container {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .offer-card,
+        .installment-card {
+            width: 100%;
+            margin: 0;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        /* تصغير حجم العناصر داخل الكروت */
+        .installment-header {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .installment-title {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.75rem;
+        }
+
+        .offer-badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.75rem;
+        }
+
+        .installment-item {
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .installment-label {
+            font-size: 0.85rem;
+        }
+
+        .installment-value {
+            font-size: 0.9rem;
+        }
+
+        .offer-description {
+            font-size: 0.85rem;
+            margin: 0.75rem 0;
+            line-height: 1.4;
+        }
+
+        /* تحسين تنسيق الحاويات */
+        .container.mx-auto {
+            max-width: 1400px;
+            padding: 0 1rem;
+        }
+
+        .bg-white.rounded-xl.shadow-lg.p-6.max-w-4xl.mx-auto {
+            width: 100%;
+            max-width: 1400px;
+            margin: 1rem auto;
+            padding: 1rem;
+        }
+
+        /* تنسيقات الشاشات المتوسطة */
+        @media (max-width: 1200px) {
+            #offers-container,
+            #results-container {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            #offers-container,
+            #results-container {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        /* تنسيقات الموبايل */
+        @media (max-width: 768px) {
+            #offers-container,
+            #results-container {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .offer-card,
+            .installment-card {
+                width: 92%;
+                margin-left: auto;
+                margin-right: auto;
+                padding: 1rem;
+            }
+
+            .container.mx-auto {
+                padding: 0;
+            }
+
+            /* تكبير الخط قليلاً في الموبايل */
+            .installment-title {
+                font-size: 1rem;
+            }
+
+            .offer-badge {
+                font-size: 0.9rem;
+            }
+
+            .installment-label {
+                font-size: 0.9rem;
+            }
+
+            .installment-value {
+                font-size: 1rem;
+            }
+
+            .offer-description {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* تحسين عرض الكروت المميزة */
+        .offer-card.featured,
+        .installment-card.featured {
+            background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+            border: none;
+            transform: scale(1.02);
+            box-shadow: 
+                0 20px 25px -5px rgba(255, 94, 58, 0.25),
+                0 0 15px 5px rgba(255, 149, 0, 0.1);
+        }
+
+        /* تحسين صفحة تفاصيل التمويل */
+        #results-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .installment-card {
+            width: 92%;
+            max-width: 400px;
+            margin: 0.75rem auto;
+            padding: 1.25rem;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            position: relative;
+            left: 0 !important;
+            right: 0 !important;
+            transform: none !important;
+        }
+
+        .installment-card.featured {
+            background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+            border: none;
+            width: 92%;
+            max-width: 400px;
+            margin: 0.75rem auto;
+            transform: none !important;
+            position: relative;
+            left: 0 !important;
+            right: 0 !important;
+        }
+
+        /* تحسين المحتوى في الكروت */
+        .installment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .installment-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .installment-item {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .installment-card,
+            .installment-card.featured {
+                width: 92%;
+                margin: 0.75rem auto;
+                padding: 1rem;
+            }
+        }
+
+        /* تحسين قسم المقارنة */
+        .comparison-section {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .desktop-comparison-table {
+            display: none;
+        }
+
+        .mobile-comparison-table {
+            display: block;
+        }
+
+        .mobile-comparison-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .mobile-comparison-header {
+            background: linear-gradient(135deg, #1e4ed8 0%, #3b82f6 100%);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .mobile-comparison-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .mobile-comparison-item:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-comparison-label {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .mobile-comparison-value {
+            font-weight: 600;
+            color: #1e4ed8;
+        }
+
+        /* تحسين ملخص التمويل */
+        .finance-summary {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-value {
+            color: #1e4ed8;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* تحسين العروض الحالية */
+        #offers-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            padding: 0;
+            width: 100%;
+        }
+
+        .offer-card {
+            width: 100%;
+            margin: 0;
+            padding: 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .offer-card.featured {
+            transform: none !important;
+            margin: 0;
+        }
+
+        .featured-emoji {
+            width: 25px;
+            height: 25px;
+        }
+
+        .featured-emoji.top-right {
+            top: -12px;
+            right: 8px;
+        }
+
+        .featured-emoji.top-left {
+            top: -12px;
+            left: 8px;
+        }
+
+        /* زر لوحة التحكم */
+        .admin-access {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .admin-access:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .admin-access i {
+            color: #1e4ed8;
+            font-size: 1.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .admin-access {
+                bottom: 15px;
+                left: 15px;
+                padding: 0.4rem;
+            }
+            
+            .admin-access i {
+                font-size: 1rem;
+            }
+        }
+
+        /* تحسين رأس الكارت */
+        .installment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            width: 100%;
+        }
+
+        .installment-title {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            color: #1e4ed8;
+            white-space: nowrap;
+        }
+
+        .offer-badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        /* تحسين البادج في الكارت المميز */
+        .installment-card.featured .installment-title {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+
+        .installment-card.featured .offer-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+
+        /* تحسين الألوان المختلفة للبادج */
+        .interest-offer {
+            background-color: rgba(239, 68, 68, 0.9);
+        }
+
+        .fee-offer {
+            background-color: rgba(16, 185, 129, 0.9);
+        }
+
+        .both-offer {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(16, 185, 129, 0.9) 100%);
+        }
+
+        .zero-fee-offer {
+            background-color: rgba(139, 92, 246, 0.9);
+        }
+
+        @media (max-width: 768px) {
+            .installment-header {
+                gap: 0.5rem;
+                padding-bottom: 0.75rem;
+                margin-bottom: 1rem;
+            }
+
+            .installment-title {
+                font-size: 0.8rem;
+                padding: 0.35rem 0.6rem;
+            }
+
+            .offer-badge {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.6rem;
+            }
+        }
+
+        /* تنسيق العرض المميز */
+        .offer-card.featured {
+            background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+            border: none;
+            transform: scale(1.02);
+            box-shadow: 
+                0 20px 25px -5px rgba(255, 94, 58, 0.25),
+                0 0 15px 5px rgba(255, 149, 0, 0.1);
+            overflow: visible;
+            position: relative;
+            margin-top: 2.5rem !important;
+        }
+
+        .featured-label {
+            position: absolute;
+            top: -2rem;
+            right: 50%;
+            transform: translateX(50%);
+            background: linear-gradient(135deg, #FF9500 0%, #FF5E3A 100%);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px -3px rgba(255, 94, 58, 0.3);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .featured-label::before,
+        .featured-label::after {
+            content: '';
+            width: 25px;
+            height: 25px;
+            background-image: url('https://em-content.zobj.net/source/apple/354/fire_1f525.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .featured-label::before {
+            animation: bounce-right 1s ease-in-out infinite;
+        }
+
+        .featured-label::after {
+            animation: bounce-left 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce-right {
+            0%, 100% {
+                transform: translateY(0) rotate(5deg);
+            }
+            50% {
+                transform: translateY(-3px) rotate(-5deg);
+            }
+        }
+
+        @keyframes bounce-left {
+            0%, 100% {
+                transform: translateY(0) rotate(-5deg);
+            }
+            50% {
+                transform: translateY(-3px) rotate(5deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .offer-card.featured {
+                margin-top: 2rem !important;
+            }
+            
+            .featured-label {
+                font-size: 0.85rem;
+                padding: 0.4rem 1.25rem;
+                top: -1.75rem;
+            }
+
+            .featured-label::before,
+            .featured-label::after {
+                width: 20px;
+                height: 20px;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Welcome Page -->
     <div id="welcome-page" class="min-h-screen flex flex-col">
-        <!-- Header -->
-        <header class="gradient-bg text-white py-4 px-6 shadow-md">
-            <div class="container mx-auto flex justify-between items-center">
-                <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" alt="Mylo Logo" class="logo">
-                <button id="admin-btn" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">
-                    لوحة التحكم
-                </button>
-            </div>
-        </header>
+        <div class="main-content">
+            <!-- Header -->
+            <header class="gradient-bg text-white">
+                <div class="container mx-auto">
+                    <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" 
+                         alt="Mylo Logo" 
+                         class="logo" 
+                         onclick="goBackToWelcome()"
+                         style="cursor: pointer;">
+                </div>
+            </header>
 
-        <!-- Main Content -->
-        <main class="flex-grow py-12 px-4">
-            <div class="container mx-auto">
-                <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8 mx-auto mb-12">
-                    <div class="flex items-center justify-center mb-6">
-                        <i class="fas fa-calculator text-3xl text-blue-500 mr-3"></i>
-                        <h1 class="text-2xl font-bold text-gray-800">حاسبة التمويل الاستهلاكي</h1>
-                    </div>
-                    
-                    <div class="space-y-6">
-                        <div>
-                            <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">المبلغ المطلوب (جنيه)</label>
-                            <div class="relative">
-                                <input type="number" id="amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="أدخل المبلغ" value="">
-                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">ج.م</span>
-                            </div>
+            <!-- Admin Access Button -->
+            <div onclick="showAdminPage()" class="admin-access">
+                <i class="fas fa-gear"></i>
+            </div>
+
+            <!-- Main Content -->
+            <main class="flex-grow py-12 px-4">
+                <div class="container mx-auto">
+                    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8 mx-auto mb-12">
+                        <div class="section-header">
+                            <h1 class="section-title">
+                                <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/abacus_1f9ee.png')"></span>
+                                حاسبة أقساط مايلو
+                            </h1>
                         </div>
                         
-                        <div>
-                            <label for="down-payment" class="block text-sm font-medium text-gray-700 mb-1">المقدم (جنيه)</label>
-                            <div class="relative">
-                                <input type="number" id="down-payment" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="أدخل المقدم" value="">
-                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">ج.م</span>
+                        <div class="space-y-6">
+                            <div>
+                                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">المبلغ المطلوب (جنيه)</label>
+                                <div class="relative">
+                                    <input type="number" id="amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="أدخل المبلغ" value="">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">ج.م</span>
+                                </div>
                             </div>
+                            
+                            <div>
+                                <label for="down-payment" class="block text-sm font-medium text-gray-700 mb-1">المقدم (جنيه)</label>
+                                <div class="relative">
+                                    <input type="number" id="down-payment" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="أدخل المقدم" value="">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">ج.م</span>
+                                </div>
+                            </div>
+                            
+                            <button onclick="calculateInstallments()" id="calculate-btn" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition mt-6 flex items-center justify-center pulse-animation">
+                                <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/abacus_1f9ee.png')"></span>
+                                احسب الأقساط
+                            </button>
+                        </div>
+                    </div>
+                                    
+                    <!-- Current Offers Section -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/wrapped-gift_1f381.png')"></span>
+                                العروض الحالية
+                            </h2>
+                            <p class="section-subtitle">اختر من بين أفضل العروض المتاحة لدينا بأسعار تنافسية</p>
                         </div>
                         
-                        <button id="calculate-btn" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition mt-6 flex items-center justify-center pulse-animation">
-                            <i class="fas fa-calculator ml-2"></i>
-                            احسب الأقساط
-                        </button>
+                        <div id="offers-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Offers will be loaded here -->
+                        </div>
                     </div>
                 </div>
-                                
-                <!-- Current Offers Section -->
-                <div class="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto">
-                    <div class="flex items-center justify-center mb-6">
-                        <i class="fas fa-tags text-2xl text-blue-500 mr-3"></i>
-                        <h2 class="text-xl font-bold text-gray-800">العروض الحالية</h2>
-                    </div>
-                    <p class="text-gray-600 text-center mb-6">اختر من بين أفضل العروض المتاحة لدينا بأسعار تنافسية</p>
-                    
-                    <div id="offers-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Offers will be loaded here -->
-                    </div>
-                </div>
-            </div>
-        </main>
+            </main>
 
-        <!-- Footer -->
-        <footer class="bg-gray-100 py-8 px-6">
-            <div class="container mx-auto text-center">
-                <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" alt="Mylo Logo" class="logo mx-auto mb-4">
-                <p class="text-gray-600">حلول تمويلية ذكية تناسب احتياجاتك</p>
-                <div class="border-t border-gray-200 mt-6 pt-6 text-center text-gray-600 text-sm">
-                    <p>© 2023 مايلو. جميع الحقوق محفوظة.</p>
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="container mx-auto">
+                    <div class="footer-content">
+                        <div class="text-center">
+                            <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" alt="Mylo Logo" class="footer-logo">
+                            <p class="text-white/80 text-sm">حلول تمويلية ذكية تناسب احتياجاتك</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="tel:15070" class="footer-contact">
+                                <span class="emoji-icon large" style="background-image: url('https://em-content.zobj.net/source/apple/354/headphone_1f3a7.png')"></span>
+                                <div>
+                                    <p class="font-bold text-sm text-white">خدمة العملاء</p>
+                                    <p class="text-xl font-bold text-white">15070</p>
+                                </div>
+                            </a>
+                            <p class="text-white/80 text-sm mt-2">متاح 24/7 لخدمتك</p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-divider"></div>
+                    
+                    <div class="text-center text-white/80 text-sm">
+                        <p>© 2024 مايلو. جميع الحقوق محفوظة.</p>
+                    </div>
                 </div>
-            </div>
-        </footer>
+            </footer>
+        </div>
     </div>
 
     <!-- Results Page -->
     <div id="results-page" class="min-h-screen flex flex-col hidden">
-        <!-- Header -->
-        <header class="gradient-bg text-white py-4 px-6 shadow-md">
-            <div class="container mx-auto flex justify-between items-center">
-                <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" alt="Mylo Logo" class="logo">
-                <button id="back-btn" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">
-                    رجوع
-                </button>
-            </div>
-        </header>
+        <div class="main-content">
+            <!-- Header -->
+            <header class="gradient-bg text-white">
+                <div class="container mx-auto">
+                    <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" 
+                         alt="Mylo Logo" 
+                         class="logo" 
+                         onclick="goBackToWelcome()"
+                         style="cursor: pointer;">
+                </div>
+            </header>
 
-        <!-- Main Content -->
-        <main class="flex-grow py-12 px-4">
-            <div class="container mx-auto">
-                <div class="text-center mb-8">
-                    <h1 class="text-2xl font-bold text-gray-800">تفاصيل التمويل</h1>
-                    <p class="text-gray-600 mt-2">اختر المدة المناسبة لك من الخيارات المتاحة</p>
-                </div>
-                
-                <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Installment cards will be added here by JavaScript -->
-                </div>
-                
-                <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">ملخص التمويل</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-600 text-sm">المبلغ المطلوب</p>
-                            <p id="summary-amount" class="text-lg font-bold text-gray-800">0 جنيه</p>
+            <!-- Main Content -->
+            <main class="flex-grow py-12 px-4">
+                <div class="container mx-auto">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/money-bag_1f4b0.png')"></span>
+                            تفاصيل التمويل
+                            <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/money-with-wings_1f4b8.png')"></span>
+                        </h1>
+                        <p class="section-subtitle">اختر المدة المناسبة لك من الخيارات المتاحة</p>
+                    </div>
+                    
+                    <div id="results-container">
+                        <!-- Installment cards will be added here by JavaScript -->
+                    </div>
+                    
+                    <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/bar-chart_1f4ca.png')"></span>
+                                ملخص التمويل
+                            </h2>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-600 text-sm">المقدم</p>
-                            <p id="summary-down" class="text-lg font-bold text-gray-800">0 جنيه</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-600 text-sm">المبلغ الممول</p>
-                            <p id="summary-financed" class="text-lg font-bold text-gray-800">0 جنيه</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-gray-600 text-sm">المبلغ المطلوب</p>
+                                <p id="summary-amount" class="text-lg font-bold text-gray-800">0 جنيه</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-gray-600 text-sm">المقدم</p>
+                                <p id="summary-down" class="text-lg font-bold text-gray-800">0 جنيه</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-gray-600 text-sm">المبلغ الممول</p>
+                                <p id="summary-financed" class="text-lg font-bold text-gray-800">0 جنيه</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="mt-6">
-                        <button id="apply-now-btn" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition flex items-center justify-center">
-                            <i class="fas fa-paper-plane ml-2"></i>
-                            تقديم طلب التمويل الآن
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Comparison Section -->
-                <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">مقارنة بين خيارات التمويل</h2>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المدة</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">قيمة القسط</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">إجمالي الفائدة</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المصاريف الإدارية</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">إجمالي التكلفة</th>
-                                </tr>
-                            </thead>
-                            <tbody id="comparison-table-body" class="bg-white divide-y divide-gray-200">
-                                <!-- Comparison rows will be added here by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
+                    <!-- Comparison Section -->
+                    <div class="mt-8 bg-white p-8 rounded-xl shadow-lg comparison-section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/balance-scale_2696-fe0f.png')"></span>
+                                مقارنة سريعة
+                            </h2>
+                        </div>
+                        
+                        <!-- جدول سطح المكتب -->
+                        <div class="desktop-comparison-table overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr class="bg-gradient-to-r from-blue-500 to-blue-600">
+                                        <th scope="col" class="px-6 py-4 text-right text-sm font-bold text-white tracking-wider rounded-r-lg">المدة</th>
+                                        <th scope="col" class="px-6 py-4 text-right text-sm font-bold text-white tracking-wider">قيمة القسط</th>
+                                        <th scope="col" class="px-6 py-4 text-right text-sm font-bold text-white tracking-wider">إجمالي الفائدة</th>
+                                        <th scope="col" class="px-6 py-4 text-right text-sm font-bold text-white tracking-wider">المصاريف الإدارية</th>
+                                        <th scope="col" class="px-6 py-4 text-right text-sm font-bold text-white tracking-wider rounded-l-lg">إجمالي التكلفة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparison-table-body" class="bg-white divide-y divide-gray-100">
+                                    <!-- سيتم إضافة الصفوف هنا بواسطة JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
 
-        <!-- Footer -->
-        <footer class="bg-gray-100 py-6 px-6">
-            <div class="container mx-auto text-center text-gray-600 text-sm">
-                <p>© 2023 مايلو. جميع الحقوق محفوظة.</p>
-            </div>
-        </footer>
+                        <!-- نسخة الموبايل المحسنة -->
+                        <div class="mobile-comparison-table">
+                            <div id="mobile-comparison-container">
+                                <!-- سيتم إضافة البطاقات هنا بواسطة JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="container mx-auto px-6">
+                    <div class="footer-content">
+                        <div class="text-center">
+                            <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" alt="Mylo Logo" class="footer-logo">
+                            <p class="text-white/80">حلول تمويلية ذكية تناسب احتياجاتك</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="tel:15070" class="footer-contact">
+                                <span class="emoji-icon large" style="background-image: url('https://em-content.zobj.net/source/apple/354/headphone_1f3a7.png')"></span>
+                                <div>
+                                    <p class="font-bold text-sm text-white">خدمة العملاء</p>
+                                    <p class="text-xl font-bold text-white">15070</p>
+                                </div>
+                            </a>
+                            <p class="text-white/80 text-sm mt-2">متاح 24/7 لخدمتك</p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-divider"></div>
+                    
+                    <div class="text-center text-white/80 text-sm">
+                        <p>© 2024 مايلو. جميع الحقوق محفوظة.</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <!-- Admin Page -->
     <div id="admin-page" class="min-h-screen flex flex-col hidden">
-        <!-- Header -->
-        <header class="admin-panel text-white py-4 px-6 shadow-md">
-            <div class="container mx-auto flex justify-between items-center">
-                <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" alt="Mylo Logo" class="logo">
-                <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition">
-                    تسجيل الخروج
-                </button>
-            </div>
-        </header>
+        <div class="main-content">
+            <!-- Header -->
+            <header class="gradient-bg text-white">
+                <div class="container mx-auto">
+                    <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" 
+                         alt="Mylo Logo" 
+                         class="logo" 
+                         onclick="goBackToWelcome()"
+                         style="cursor: pointer;">
+                </div>
+            </header>
 
-        <!-- Login Form -->
-        <div id="login-form" class="flex-grow flex items-center justify-center py-12 px-4">
-            <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-                <div class="flex items-center justify-center mb-6">
-                    <i class="fas fa-lock text-2xl text-blue-500 mr-3"></i>
-                    <h1 class="text-2xl font-bold text-gray-800">تسجيل الدخول</h1>
-                </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label for="admin-username" class="block text-sm font-medium text-gray-700 mb-1">اسم المستخدم</label>
-                        <input type="text" id="admin-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="أدخل اسم المستخدم">
+            <!-- Login Form -->
+            <div id="login-form" class="flex-grow flex items-center justify-center py-12 px-4">
+                <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/locked_1f512.png')"></span>
+                            تسجيل الدخول
+                        </h2>
                     </div>
-                    
-                    <div class="relative">
-                        <label for="admin-password" class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
-                        <input type="password" id="admin-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10" placeholder="أدخل كلمة المرور">
-                        <span class="password-toggle" onclick="togglePassword('admin-password')">
-                            <i class="far fa-eye"></i>
-                        </span>
-                    </div>
-                    
-                    <button id="login-btn" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition mt-6 flex items-center justify-center">
-                        <i class="fas fa-sign-in-alt ml-2"></i>
-                        تسجيل الدخول
-                    </button>
-                    
-                    <p id="login-error" class="text-red-500 text-sm text-center mt-2 hidden">اسم المستخدم أو كلمة المرور غير صحيحة</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Admin Dashboard -->
-        <div id="admin-dashboard" class="flex-grow py-12 px-4 hidden">
-            <div class="container mx-auto">
-                <div class="flex items-center justify-center mb-8">
-                    <i class="fas fa-tachometer-alt text-2xl text-blue-500 mr-3"></i>
-                    <h1 class="text-2xl font-bold text-gray-800">لوحة تحكم مايلو</h1>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">إعدادات التمويل</h2>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المدة (شهر)</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نسبة الفائدة (%)</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نسبة المصاريف (%)</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">متاح</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نوع العرض</th>
-                                </tr>
-                            </thead>
-                            <tbody id="rates-table-body" class="bg-white divide-y divide-gray-200">
-                                <!-- Rates will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <button id="save-settings" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition mt-8 flex items-center justify-center">
-                        <i class="fas fa-save ml-2"></i>
-                        حفظ الإعدادات
-                    </button>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">إعدادات الدخول</h2>
                     
                     <div class="space-y-4">
                         <div>
-                            <label for="new-username" class="block text-sm font-medium text-gray-700 mb-1">اسم المستخدم الجديد</label>
-                            <input type="text" id="new-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <label for="admin-username" class="block text-sm font-medium text-gray-700 mb-1">اسم المستخدم</label>
+                            <input type="text" id="admin-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="أدخل اسم المستخدم">
                         </div>
                         
                         <div class="relative">
-                            <label for="new-password" class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور الجديدة</label>
-                            <input type="password" id="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10">
-                            <span class="password-toggle" onclick="togglePassword('new-password')">
+                            <label for="admin-password" class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
+                            <input type="password" id="admin-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10" placeholder="أدخل كلمة المرور">
+                            <span class="password-toggle" onclick="togglePassword('admin-password')">
                                 <i class="far fa-eye"></i>
                             </span>
                         </div>
                         
-                        <div class="relative">
-                            <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">تأكيد كلمة المرور</label>
-                            <input type="password" id="confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10">
-                            <span class="password-toggle" onclick="togglePassword('confirm-password')">
-                                <i class="far fa-eye"></i>
-                            </span>
+                        <button onclick="login()" id="login-btn" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition mt-6 flex items-center justify-center">
+                            <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/key_1f511.png')"></span>
+                            تسجيل الدخول
+                        </button>
+                        
+                        <p id="login-error" class="text-red-500 text-sm text-center mt-2 hidden">اسم المستخدم أو كلمة المرور غير صحيحة</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div id="admin-dashboard" class="flex-grow py-12 px-4 hidden">
+                <div class="container mx-auto">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/gear_2699-fe0f.png')"></span>
+                            لوحة تحكم مايلو
+                        </h1>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/wrench_1f527.png')"></span>
+                                إعدادات التمويل
+                            </h2>
                         </div>
                         
-                        <div>
-                            <label for="admin-email" class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
-                            <input type="email" id="admin-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="tarek.mahmoud1022005@gmail.com">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gradient-to-r from-blue-500 to-blue-600">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider rounded-r-lg">المدة (شهر)</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">نسبة الفائدة (%)</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">نسبة المصاريف (%)</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">متاح</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider rounded-l-lg">نوع العرض</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider rounded-l-lg">مميز</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rates-table-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- Rates will be loaded here -->
+                                </tbody>
+                            </table>
                         </div>
                         
-                        <button id="update-credentials" class="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition mt-4 flex items-center justify-center">
-                            <i class="fas fa-user-edit ml-2"></i>
-                            تحديث بيانات الدخول
+                        <button onclick="saveSettings()" id="save-settings" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition mt-8 flex items-center justify-center">
+                            <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/floppy-disk_1f4be.png')"></span>
+                            حفظ الإعدادات
                         </button>
                     </div>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-md p-6 admin-dashboard-grid">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">الإعدادات الحالية</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-600 text-sm">عدد العروض المتاحة</p>
-                            <p id="current-offers-count" class="text-lg font-bold text-gray-800">0</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-600 text-sm">أقل نسبة فائدة</p>
-                            <p id="min-interest" class="text-lg font-bold text-gray-800">0%</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-600 text-sm">آخر تحديث</p>
-                            <p id="last-updated" class="text-lg font-bold text-gray-800">-</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Statistics Section -->
-                <div class="bg-white rounded-xl shadow-md p-6 mt-8">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">إحصائيات التمويل</h2>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                            <p class="text-gray-600 text-sm">إجمالي طلبات التمويل</p>
-                            <p id="total-applications" class="text-2xl font-bold text-gray-800">1,245</p>
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/bust-in-silhouette_1f464.png')"></span>
+                                إعدادات الدخول
+                            </h2>
                         </div>
-                        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                            <p class="text-gray-600 text-sm">طلبات تمت الموافقة عليها</p>
-                            <p id="approved-applications" class="text-2xl font-bold text-gray-800">892</p>
-                        </div>
-                        <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
-                            <p class="text-gray-600 text-sm">طلبات قيد المراجعة</p>
-                            <p id="pending-applications" class="text-2xl font-bold text-gray-800">153</p>
-                        </div>
-                        <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
-                            <p class="text-gray-600 text-sm">طلبات مرفوضة</p>
-                            <p id="rejected-applications" class="text-2xl font-bold text-gray-800">200</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="new-username" class="block text-sm font-medium text-gray-700 mb-1">اسم المستخدم الجديد</label>
+                                <input type="text" id="new-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <div class="relative">
+                                <label for="new-password" class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور الجديدة</label>
+                                <input type="password" id="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10">
+                                <span class="password-toggle" onclick="togglePassword('new-password')">
+                                    <i class="far fa-eye"></i>
+                                </span>
+                            </div>
+                            
+                            <div class="relative">
+                                <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">تأكيد كلمة المرور</label>
+                                <input type="password" id="confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10">
+                                <span class="password-toggle" onclick="togglePassword('confirm-password')">
+                                    <i class="far fa-eye"></i>
+                                </span>
+                            </div>
+                            
+                            <div>
+                                <label for="admin-email" class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+                                <input type="email" id="admin-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <button onclick="updateCredentials()" id="update-credentials" class="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition mt-4 flex items-center justify-center">
+                                <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/memo_1f4dd.png')"></span>
+                                تحديث بيانات الدخول
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Footer -->
-        <footer class="admin-panel py-6 px-6">
-            <div class="container mx-auto text-center text-gray-300 text-sm">
-                <p>© 2023 مايلو. لوحة التحكم الداخلية.</p>
-            </div>
-        </footer>
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="container mx-auto px-6">
+                    <div class="footer-content">
+                        <div class="text-center">
+                            <img src="https://cdn.prod.website-files.com/672c9aa30d513a6484b8e56e/673089bfa9e91179ff138f56_Mylo%20logo.svg" alt="Mylo Logo" class="footer-logo">
+                            <p class="text-white/80">حلول تمويلية ذكية تناسب احتياجاتك</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="tel:15070" class="footer-contact">
+                                <span class="emoji-icon large" style="background-image: url('https://em-content.zobj.net/source/apple/354/headphone_1f3a7.png')"></span>
+                                <div>
+                                    <p class="font-bold text-sm text-white">خدمة العملاء</p>
+                                    <p class="text-xl font-bold text-white">15070</p>
+                                </div>
+                            </a>
+                            <p class="text-white/80 text-sm mt-2">متاح 24/7 لخدمتك</p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-divider"></div>
+                    
+                    <div class="text-center text-white/80 text-sm">
+                        <p>© 2024 مايلو. جميع الحقوق محفوظة.</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <script>
@@ -598,20 +2743,24 @@
         const adminPage = document.getElementById('admin-page');
         const adminDashboard = document.getElementById('admin-dashboard');
         const loginForm = document.getElementById('login-form');
-        
-        // Buttons
         const calculateBtn = document.getElementById('calculate-btn');
         const backBtn = document.getElementById('back-btn');
+        const amountInput = document.getElementById('amount');
+        const downPaymentInput = document.getElementById('down-payment');
+        const resultsContainer = document.getElementById('results-container');
+        const comparisonTableBody = document.getElementById('comparison-table-body');
+        const summaryAmount = document.getElementById('summary-amount');
+        const summaryDown = document.getElementById('summary-down');
+        const summaryFinanced = document.getElementById('summary-financed');
+        
+        // Buttons
         const adminBtn = document.getElementById('admin-btn');
         const logoutBtn = document.getElementById('logout-btn');
         const loginBtn = document.getElementById('login-btn');
         const saveSettingsBtn = document.getElementById('save-settings');
         const updateCredentialsBtn = document.getElementById('update-credentials');
-        const applyNowBtn = document.getElementById('apply-now-btn');
         
-        // Inputs
-        const amountInput = document.getElementById('amount');
-        const downPaymentInput = document.getElementById('down-payment');
+        // حقول الإدخال
         const adminUsername = document.getElementById('admin-username');
         const adminPassword = document.getElementById('admin-password');
         const newUsername = document.getElementById('new-username');
@@ -619,26 +2768,65 @@
         const confirmPassword = document.getElementById('confirm-password');
         const adminEmail = document.getElementById('admin-email');
         
-        // Display elements
-        const resultsContainer = document.getElementById('results-container');
+        // عناصر العرض
         const offersContainer = document.getElementById('offers-container');
         const ratesTableBody = document.getElementById('rates-table-body');
-        const comparisonTableBody = document.getElementById('comparison-table-body');
-        const summaryAmount = document.getElementById('summary-amount');
-        const summaryDown = document.getElementById('summary-down');
-        const summaryFinanced = document.getElementById('summary-financed');
         const currentOffersCount = document.getElementById('current-offers-count');
         const minInterest = document.getElementById('min-interest');
         const lastUpdated = document.getElementById('last-updated');
         const loginError = document.getElementById('login-error');
-        const totalApplications = document.getElementById('total-applications');
-        const approvedApplications = document.getElementById('approved-applications');
-        const pendingApplications = document.getElementById('pending-applications');
-        const rejectedApplications = document.getElementById('rejected-applications');
         
         // Initialize the app
         document.addEventListener('DOMContentLoaded', async function() {
-            // Load settings from Firebase
+            // تعريف عناصر الصفحة
+            window.welcomePage = document.getElementById('welcome-page');
+            window.resultsPage = document.getElementById('results-page');
+            window.adminPage = document.getElementById('admin-page');
+            window.adminDashboard = document.getElementById('admin-dashboard');
+            window.loginForm = document.getElementById('login-form');
+            
+            // أزرار التحكم
+            window.calculateBtn = document.getElementById('calculate-btn');
+            window.backBtn = document.getElementById('back-btn');
+            window.adminBtn = document.getElementById('admin-btn');
+            window.logoutBtn = document.getElementById('logout-btn');
+            window.loginBtn = document.getElementById('login-btn');
+            window.saveSettingsBtn = document.getElementById('save-settings');
+            window.updateCredentialsBtn = document.getElementById('update-credentials');
+            
+            // حقول الإدخال
+            window.amountInput = document.getElementById('amount');
+            window.downPaymentInput = document.getElementById('down-payment');
+            window.adminUsername = document.getElementById('admin-username');
+            window.adminPassword = document.getElementById('admin-password');
+            window.newUsername = document.getElementById('new-username');
+            window.newPassword = document.getElementById('new-password');
+            window.confirmPassword = document.getElementById('confirm-password');
+            window.adminEmail = document.getElementById('admin-email');
+            
+            // عناصر العرض
+            window.resultsContainer = document.getElementById('results-container');
+            window.offersContainer = document.getElementById('offers-container');
+            window.ratesTableBody = document.getElementById('rates-table-body');
+            window.comparisonTableBody = document.getElementById('comparison-table-body');
+            window.summaryAmount = document.getElementById('summary-amount');
+            window.summaryDown = document.getElementById('summary-down');
+            window.summaryFinanced = document.getElementById('summary-financed');
+            window.currentOffersCount = document.getElementById('current-offers-count');
+            window.minInterest = document.getElementById('min-interest');
+            window.lastUpdated = document.getElementById('last-updated');
+            window.loginError = document.getElementById('login-error');
+            
+            // تأكد من وجود العناصر
+            console.log("Page elements loaded:", {
+                welcomePage,
+                resultsPage,
+                adminPage,
+                offersContainer,
+                ratesTableBody
+            });
+            
+            // تحميل البيانات
             try {
                 const settingsSnapshot = await database.ref('settings').get();
                 const credentialsSnapshot = await database.ref('credentials').get();
@@ -651,87 +2839,172 @@
                     adminCredentials = credentialsSnapshot.val();
                 }
                 
-                // Update displays
+                // تحديث العرض
                 updateAdminDashboard();
                 displayCurrentOffers();
                 
-                // Set email field
-                adminEmail.value = adminCredentials.email;
+                // تعيين البريد الإلكتروني
+                if(adminEmail) adminEmail.value = adminCredentials.email;
             } catch (error) {
                 console.error("Error loading data:", error);
                 showToast("حدث خطأ في تحميل البيانات، يتم استخدام البيانات المحلية");
+                displayCurrentOffers();
             }
             
-            // Event listeners
-            calculateBtn.addEventListener('click', calculateInstallments);
-            backBtn.addEventListener('click', goBackToWelcome);
-            adminBtn.addEventListener('click', showAdminPage);
-            logoutBtn.addEventListener('click', logout);
-            loginBtn.addEventListener('click', login);
-            saveSettingsBtn.addEventListener('click', saveSettings);
-            updateCredentialsBtn.addEventListener('click', updateCredentials);
-            applyNowBtn.addEventListener('click', applyForLoan);
+            // ربط الأحداث
+            if(calculateBtn) calculateBtn.onclick = calculateInstallments;
+            if(backBtn) backBtn.onclick = goBackToWelcome;
+            if(adminBtn) adminBtn.onclick = showAdminPage;
+            if(logoutBtn) logoutBtn.onclick = logout;
+            if(loginBtn) loginBtn.onclick = login;
+            if(saveSettingsBtn) saveSettingsBtn.onclick = saveSettings;
+            if(updateCredentialsBtn) updateCredentialsBtn.onclick = updateCredentials;
         });
 
-        // Calculate installments
-        function calculateInstallments() {
-            const amount = parseFloat(amountInput.value);
-            const downPayment = parseFloat(downPaymentInput.value) || 0;
+        // دالة عرض العروض الحالية
+        function displayCurrentOffers() {
+            offersContainer.innerHTML = '';
             
-            if (!amount || amount <= 0) {
-                alert("الرجاء إدخال مبلغ صحيح");
-                return;
-            }
+            let availableOffers = 0;
+            let minInterestRate = Infinity;
             
-            if (downPayment >= amount) {
-                alert("المقدم يجب أن يكون أقل من المبلغ الكلي");
-                return;
-            }
-            
-            const financedAmount = amount - downPayment;
-            
-            // Update summary
-            summaryAmount.textContent = amount.toLocaleString() + " جنيه";
-            summaryDown.textContent = downPayment.toLocaleString() + " جنيه";
-            summaryFinanced.textContent = financedAmount.toLocaleString() + " جنيه";
-            
-            // Clear previous results
-            resultsContainer.innerHTML = '';
-            comparisonTableBody.innerHTML = '';
-            
-            // Calculate for each available month
             for (const [months, rate] of Object.entries(currentSettings.rates)) {
                 if (!rate.available) continue;
                 
-                const monthsInt = parseInt(months);
+                availableOffers++;
+                if (rate.interest < minInterestRate) {
+                    minInterestRate = rate.interest;
+                }
                 
-                // Calculate total interest amount (fixed calculation)
-                const totalInterest = financedAmount * (rate.interest / 100);
-                
-                // Calculate total amount with interest
-                const totalAmountWithInterest = financedAmount + totalInterest;
-                
-                // Calculate monthly installment (total amount divided by months)
-                const installmentAmount = totalAmountWithInterest / monthsInt;
-                
-                // Calculate admin fee (0 if zero-fee offer)
-                const adminFee = rate.offerType === "zero-fee" ? 0 : financedAmount * (rate.fee / 100);
-                
-                // Total cost (installment * months + down payment)
-                const totalCost = (installmentAmount * monthsInt);
-                
-                // Create card
-                const card = document.createElement('div');
-                card.className = 'bg-white p-6 rounded-lg shadow-md installment-card relative';
-                
-                // Add badge for special offers (now on the left side)
+                const offerCard = document.createElement('div');
+                offerCard.className = `offer-card ${rate.featured ? 'featured' : ''}`;
+
+                // إضافة الإيموجي للكروت المميزة في الأطراف العلوية فقط
+                let featuredEmojis = '';
+                if (rate.featured) {
+                    featuredEmojis = `
+                        <div class="featured-emoji top-right"></div>
+                        <div class="featured-emoji top-left"></div>
+                    `;
+                }
+
+                // إضافة الشارة (Badge) إذا كان هناك عرض
+                let badgeHTML = '';
+                let offerDescription = '';
                 if (rate.offerType !== "none") {
                     let badgeClass = "";
                     let badgeText = "";
                     
                     if (rate.offerType === "interest") {
                         badgeClass = "interest-offer";
-                        badgeText = "خصم علي الفوائد";
+                        badgeText = "خصم على الفوائد";
+                        offerDescription = "استفد من خصم خاص على نسبة الفائدة السنوية";
+                    } else if (rate.offerType === "fee") {
+                        badgeClass = "fee-offer";
+                        badgeText = "خصم على المصاريف";
+                        offerDescription = "استفد من خصم خاص على المصاريف الإدارية";
+                    } else if (rate.offerType === "both") {
+                        badgeClass = "both-offer";
+                        badgeText = "خصم شامل";
+                        offerDescription = "استفد من خصم شامل على الفوائد والمصاريف";
+                    } else if (rate.offerType === "zero-fee") {
+                        badgeClass = "zero-fee-offer";
+                        badgeText = "بدون مصاريف إدارية";
+                        offerDescription = "استفد من التمويل بدون مصاريف إدارية";
+                    }
+                    
+                    badgeHTML = `<div class="offer-badge ${badgeClass}">${badgeText}</div>`;
+                }
+
+                offerCard.innerHTML = `
+                    ${rate.featured ? '<div class="featured-label">العرض المشطشط</div>' : ''}
+                    ${featuredEmojis}
+                    <div class="installment-header">
+                        ${badgeHTML}
+                        <div class="installment-title">${months} شهر</div>
+                    </div>
+                    ${offerDescription ? `<p class="offer-description text-gray-500 text-sm mt-4 mb-6">${offerDescription}</p>` : ''}
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">نسبة الفائدة السنوية</span>
+                                <span class="font-semibold text-blue-600">${rate.interest}%</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">المصاريف الإدارية</span>
+                                <span class="font-semibold text-blue-600">${rate.offerType === 'zero-fee' ? '0' : rate.fee}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="calculateInstallments()" class="w-full bg-blue-50 text-blue-600 py-3 rounded-lg font-medium hover:bg-blue-100 transition mt-6 flex items-center justify-center gap-2">
+                        <span class="emoji-icon" style="background-image: url('https://em-content.zobj.net/source/apple/354/abacus_1f9ee.png')"></span>
+                        احسب التمويل
+                    </button>
+                `;
+                
+                offersContainer.appendChild(offerCard);
+            }
+            
+            // تحديث عدد العروض وأقل نسبة فائدة
+            if(currentOffersCount) currentOffersCount.textContent = availableOffers;
+            if(minInterest) minInterest.textContent = minInterestRate !== Infinity ? minInterestRate + '%' : '0%';
+        }
+
+        // دالة حساب الأقساط
+        function calculateInstallments() {
+            const amount = parseFloat(amountInput.value);
+            const downPayment = parseFloat(downPaymentInput.value) || 0;
+            
+            if (!amount || amount <= 0) {
+                showToast("الرجاء إدخال مبلغ صحيح");
+                return;
+            }
+            
+            if (downPayment >= amount) {
+                showToast("المقدم يجب أن يكون أقل من المبلغ الكلي");
+                return;
+            }
+            
+            const financedAmount = amount - downPayment;
+            
+            // تحديث الملخص
+            summaryAmount.textContent = amount.toLocaleString() + " جنيه";
+            summaryDown.textContent = downPayment.toLocaleString() + " جنيه";
+            summaryFinanced.textContent = financedAmount.toLocaleString() + " جنيه";
+            
+            // مسح النتائج السابقة
+            resultsContainer.innerHTML = '';
+            comparisonTableBody.innerHTML = '';
+            
+            // إنشاء كروت الأقساط وجدول المقارنة
+            for (const [months, rate] of Object.entries(currentSettings.rates)) {
+                if (!rate.available) continue;
+                
+                const monthsInt = parseInt(months);
+                const monthlyInterestRate = (rate.interest / 100) / 12;
+                const totalInterest = financedAmount * (rate.interest / 100);
+                const totalAmountWithInterest = financedAmount + totalInterest;
+                
+                // حساب القسط الشهري باستخدام معادلة القرض
+                const monthlyPayment = (financedAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, monthsInt)) / 
+                                     (Math.pow(1 + monthlyInterestRate, monthsInt) - 1);
+                
+                const adminFee = rate.offerType === "zero-fee" ? 0 : financedAmount * (rate.fee / 100);
+                const totalCost = totalAmountWithInterest + adminFee;
+                
+                // إضافة الشارة (Badge) إذا كان هناك عرض
+                let badgeHTML = '';
+                let isFeatured = rate.featured;
+                
+                if (rate.offerType !== "none") {
+                    let badgeClass = "";
+                    let badgeText = "";
+                    
+                    if (rate.offerType === "interest") {
+                        badgeClass = "interest-offer";
+                        badgeText = "خصم على الفوائد";
                     } else if (rate.offerType === "fee") {
                         badgeClass = "fee-offer";
                         badgeText = "خصم على المصاريف";
@@ -743,55 +3016,94 @@
                         badgeText = "بدون مصاريف إدارية";
                     }
                     
-                    card.innerHTML = `<div class="offer-badge ${badgeClass}">${badgeText}</div>`;
+                    badgeHTML = `<div class="offer-badge ${badgeClass}">${badgeText}</div>`;
                 }
-                
-                card.innerHTML += `
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">${months} شهر</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">نسبة الفائدة</span>
-                            <span class="font-medium">${rate.interest}%</span>
+
+                // إضافة الإيموجي للكروت المميزة
+                let featuredEmojis = '';
+                if (isFeatured) {
+                    featuredEmojis = `
+                        <div class="featured-emoji top-right"></div>
+                        <div class="featured-emoji top-left"></div>
+                    `;
+                }
+
+                // إنشاء كارت القسط
+                const card = document.createElement('div');
+                card.className = `installment-card ${isFeatured ? 'featured' : ''}`;
+                card.innerHTML = `
+                    ${isFeatured ? '<div class="featured-label">العرض المشطشط</div>' : ''}
+                    ${featuredEmojis}
+                    <div class="installment-header">
+                        <div class="installment-title">${months} شهر</div>
+                        ${badgeHTML}
+                    </div>
+                    <div class="installment-details">
+                        <div class="installment-item highlight-item">
+                            <span class="installment-label">القسط الشهري</span>
+                            <span class="installment-value">${Math.round(monthlyPayment).toLocaleString()} جنيه</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">قيمة القسط</span>
-                            <span class="font-medium">${Math.round(installmentAmount).toLocaleString()} جنيه</span>
+                        <div class="installment-item">
+                            <span class="installment-label">نسبة الفائدة السنوية</span>
+                            <span class="installment-value">${rate.interest}%</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">المصاريف الإدارية</span>
-                            <span class="font-medium">${Math.round(adminFee).toLocaleString()} جنيه</span>
+                        <div class="installment-item">
+                            <span class="installment-label">إجمالي الفوائد</span>
+                            <span class="installment-value">${Math.round(totalInterest).toLocaleString()} جنيه</span>
                         </div>
-                        <div class="border-t border-gray-200 my-2"></div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">المبلغ الإجمالي</span>
-                            <span class="font-bold text-blue-600">${Math.round(totalCost).toLocaleString()} جنيه</span>
+                        <div class="installment-item">
+                            <span class="installment-label">المصاريف الإدارية</span>
+                            <span class="installment-value">${Math.round(adminFee).toLocaleString()} جنيه</span>
                         </div>
+                    </div>
+                    <div class="installment-total">
+                        <div class="installment-label">إجمالي المبلغ المستحق</div>
+                        <div class="installment-value">${Math.round(totalCost).toLocaleString()} جنيه</div>
                     </div>
                 `;
                 
                 resultsContainer.appendChild(card);
                 
-                // Add to comparison table
+                // إضافة صف في جدول المقارنة
                 const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50';
+                row.className = 'hover:bg-blue-50 transition-colors duration-150';
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${months} شهر</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${Math.round(installmentAmount).toLocaleString()} جنيه</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${Math.round(totalInterest).toLocaleString()} جنيه</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${Math.round(adminFee).toLocaleString()} جنيه</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${Math.round(totalCost).toLocaleString()} جنيه</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${Math.round(monthlyPayment).toLocaleString()} جنيه</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${Math.round(totalInterest).toLocaleString()} جنيه</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${Math.round(adminFee).toLocaleString()} جنيه</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">${Math.round(totalCost).toLocaleString()} جنيه</td>
                 `;
                 comparisonTableBody.appendChild(row);
             }
+
+            // التمرير إلى أعلى الصفحة
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            // Show results page
-            welcomePage.classList.add('hidden');
-            resultsPage.classList.remove('hidden');
+            // تركيز على حقل المبلغ
+            setTimeout(() => {
+                amountInput.focus();
+            }, 500);
             
-            // Create confetti effect
+            // الانتقال إلى صفحة النتائج
+            if(welcomePage) welcomePage.style.display = 'none';
+            if(resultsPage) resultsPage.style.display = 'flex';
+            
+            // إنشاء تأثير الكونفيتي
             createConfetti();
         }
         
+        // دالة مساعدة للحصول على نص العرض
+        function getOfferText(offerType) {
+            switch(offerType) {
+                case 'interest': return 'خصم على الفوائد';
+                case 'fee': return 'خصم على المصاريف';
+                case 'both': return 'خصم شامل';
+                case 'zero-fee': return 'بدون مصاريف إدارية';
+                default: return '';
+            }
+        }
+
         // Create confetti effect
         function createConfetti() {
             const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#6366f1'];
@@ -812,198 +3124,171 @@
             }
         }
 
-        // Display current offers on welcome page
-        function displayCurrentOffers() {
-            offersContainer.innerHTML = '';
-            
-            let availableOffers = 0;
-            let minInterestRate = Infinity;
-            
-            for (const [months, rate] of Object.entries(currentSettings.rates)) {
-                if (!rate.available) continue;
-                
-                availableOffers++;
-                if (rate.interest < minInterestRate) {
-                    minInterestRate = rate.interest;
-                }
-                
-                const offerCard = document.createElement('div');
-                offerCard.className = 'offer-card bg-white p-6 rounded-lg relative';
-                
-                // Add badge for special offers (now on the left side)
-                if (rate.offerType !== "none") {
-                    let badgeClass = "";
-                    let badgeText = "";
-                    
-                    if (rate.offerType === "interest") {
-                        badgeClass = "interest-offer";
-                        badgeText = "خصم  على الفوائد";
-                    } else if (rate.offerType === "fee") {
-                        badgeClass = "fee-offer";
-                        badgeText = "خصم على المصاريف";
-                    } else if (rate.offerType === "both") {
-                        badgeClass = "both-offer";
-                        badgeText = "خصم شامل";
-                    } else if (rate.offerType === "zero-fee") {
-                        badgeClass = "zero-fee-offer";
-                        badgeText = "بدون مصاريف";
-                    }
-                    
-                    offerCard.innerHTML = `<div class="offer-badge ${badgeClass}">${badgeText}</div>`;
-                }
-                
-                let offerDetails = "";
-                
-                if (rate.offerType === "interest") {
-                    offerDetails = `<p class="text-green-600 font-medium mt-2">خصم  على الفوائد</p>`;
-                } else if (rate.offerType === "fee") {
-                    offerDetails = `<p class="text-green-600 font-medium mt-2">خصم خاص على المصاريف</p>`;
-                } else if (rate.offerType === "both") {
-                    offerDetails = `<p class="text-green-600 font-medium mt-2">خصم شامل على الفوائد والمصاريف</p>`;
-                } else if (rate.offerType === "zero-fee") {
-                    offerDetails = `<p class="text-green-600 font-medium mt-2">بدون مصاريف إدارية</p>`;
-                }
-                
-                offerCard.innerHTML += `
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">${months} شهر</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">نسبة الفائدة</span>
-                            <span class="font-medium ${rate.offerType === 'interest' || rate.offerType === 'both' ? 'text-red-500' : 'text-blue-600'}">${rate.interest}%</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">المصاريف الإدارية</span>
-                            <span class="font-medium ${rate.offerType === 'fee' || rate.offerType === 'both' || rate.offerType === 'zero-fee' ? 'text-green-500' : 'text-blue-600'}">${rate.offerType === 'zero-fee' ? '0%' : rate.fee + '%'}</span>
-                        </div>
-                        ${offerDetails}
-                        <button class="w-full mt-4 bg-blue-50 text-blue-600 py-2 rounded-lg font-medium hover:bg-blue-100 transition" data-months="${months}">
-                            احسب التمويل
-                        </button>
-                    </div>
-                `;
-                
-                offersContainer.appendChild(offerCard);
-            }
-            
-            // Update offers count and min interest
-            currentOffersCount.textContent = availableOffers;
-            minInterest.textContent = minInterestRate !== Infinity ? minInterestRate + '%' : '0%';
-            
-            // Add event listeners to calculate buttons
-            document.querySelectorAll('[data-months]').forEach(button => {
-                button.addEventListener('click', function() {
-                    const months = this.getAttribute('data-months');
-                    calculateInstallments();
-                    
-                    // Scroll to the specific installment card
-                    setTimeout(() => {
-                        const cards = document.querySelectorAll('.installment-card');
-                        if (cards.length > 0) {
-                            const targetCard = Array.from(cards).find(card => 
-                                card.querySelector('h3').textContent.includes(months + ' شهر')
-                            );
-                            
-                            if (targetCard) {
-                                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                targetCard.classList.add('ring-2', 'ring-blue-500');
-                                
-                                setTimeout(() => {
-                                    targetCard.classList.remove('ring-2', 'ring-blue-500');
-                                }, 3000);
-                            }
-                        }
-                    }, 100);
-                });
-            });
-        }
-
         // Navigation functions
         function goBackToWelcome() {
-            resultsPage.classList.add('hidden');
-            welcomePage.classList.remove('hidden');
+            // إعادة تعيين الحقول
+            if(amountInput) amountInput.value = '';
+            if(downPaymentInput) downPaymentInput.value = '';
+            
+            // إخفاء جميع الصفحات
+            if(resultsPage) resultsPage.style.display = 'none';
+            if(adminPage) adminPage.style.display = 'none';
+            if(adminDashboard) adminDashboard.style.display = 'none';
+            if(loginForm) loginForm.style.display = 'none';
+            
+            // إظهار الصفحة الرئيسية
+            if(welcomePage) welcomePage.style.display = 'flex';
+            
+            // التمرير إلى أعلى الصفحة
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showAdminPage() {
-            welcomePage.classList.add('hidden');
-            resultsPage.classList.add('hidden');
-            adminPage.classList.remove('hidden');
-            loginForm.classList.remove('hidden');
-            adminDashboard.classList.add('hidden');
+            console.log("Showing admin page...");
             
-            // Clear login form
-            adminUsername.value = '';
-            adminPassword.value = '';
-            loginError.classList.add('hidden');
+            // إخفاء الصفحات الأخرى
+            if(welcomePage) welcomePage.style.display = 'none';
+            if(resultsPage) resultsPage.style.display = 'none';
+            
+            // إظهار صفحة الإدارة
+            if(adminPage) {
+                adminPage.style.display = 'flex';
+                if(loginForm) loginForm.style.display = 'flex';
+                if(adminDashboard) adminDashboard.style.display = 'none';
+                
+                // تنظيف نموذج تسجيل الدخول
+                if(adminUsername) adminUsername.value = '';
+                if(adminPassword) adminPassword.value = '';
+                if(loginError) loginError.classList.add('hidden');
+                
+                console.log("Admin page displayed successfully");
+            } else {
+                console.error("Admin page element not found!");
+            }
         }
 
         function logout() {
-            loginForm.classList.remove('hidden');
-            adminDashboard.classList.add('hidden');
-            // Return to welcome page
-            adminPage.classList.add('hidden');
-            welcomePage.classList.remove('hidden');
+            console.log("Logging out...");
+            
+            // التحقق من وجود العناصر
+            if(!loginForm || !adminDashboard || !adminPage || !welcomePage) {
+                console.error("Required logout elements not found!");
+                return;
+            }
+            
+            // تغيير العرض
+            loginForm.style.display = 'flex';
+            adminDashboard.style.display = 'none';
+            adminPage.style.display = 'none';
+            welcomePage.style.display = 'flex';
+            
+            // تنظيف البيانات الحساسة
+            if(adminUsername) adminUsername.value = '';
+            if(adminPassword) adminPassword.value = '';
+            if(newPassword) newPassword.value = '';
+            if(confirmPassword) confirmPassword.value = '';
+            
+            showToast("تم تسجيل الخروج بنجاح");
+            console.log("Logout complete");
         }
 
         // Admin functions
         function login() {
+            console.log("Attempting login...");
+            
+            // التحقق من وجود العناصر المطلوبة
+            if(!adminUsername || !adminPassword || !loginForm || !adminDashboard || !loginError) {
+                console.error("Required login elements not found!");
+                return;
+            }
+            
             const username = adminUsername.value;
             const password = adminPassword.value;
             
+            console.log("Checking credentials...");
+            
             if (username === adminCredentials.username && 
                 password === adminCredentials.password) {
-                loginForm.classList.add('hidden');
-                adminDashboard.classList.remove('hidden');
+                console.log("Login successful");
                 
-                // Update admin form with current settings
-                updateRatesTable();
+                // إخفاء نموذج تسجيل الدخول وإظهار لوحة التحكم
+                loginForm.style.display = 'none';
+                adminDashboard.style.display = 'block';
                 
-                // Update credentials form
-                newUsername.value = adminCredentials.username;
-                adminEmail.value = adminCredentials.email;
+                // تحديث لوحة التحكم
+                setTimeout(() => {
+                    updateRatesTable();
+                    updateAdminDashboard();
+                    
+                    // تحديث نموذج البيانات
+                    if(newUsername) newUsername.value = adminCredentials.username;
+                    if(adminEmail) adminEmail.value = adminCredentials.email;
+                }, 100);
+                
+                showToast("تم تسجيل الدخول بنجاح");
             } else {
+                console.log("Login failed");
                 loginError.classList.remove('hidden');
+                showToast("بيانات الدخول غير صحيحة");
             }
         }
 
         // Update rates table in admin dashboard
         function updateRatesTable() {
-            ratesTableBody.innerHTML = '';
+            console.log("Updating rates table...");
+            if(!ratesTableBody) {
+                console.error("Rates table body not found");
+                return;
+            }
             
-            for (const [months, rate] of Object.entries(currentSettings.rates)) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${months}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="number" step="0.1" value="${rate.interest}"
-                                class="interest-input w-full px-2 py-1 border border-gray-300 rounded"
-                                data-months="${months}">
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="number" step="0.1" value="${rate.fee}"
-                                class="fee-input w-full px-2 py-1 border border-gray-300 rounded"
-                                data-months="${months}">
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="checkbox" ${rate.available ? 'checked' : ''}
-                                class="available-input h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                data-months="${months}">
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <select class="offer-type-input w-full px-2 py-1 border border-gray-300 rounded" data-months="${months}">
-                            <option value="none" ${rate.offerType === "none" ? "selected" : ""}>بدون عرض</option>
-                            <option value="interest" ${rate.offerType === "interest" ? "selected" : ""}>خصم  على الفوائد</option>
-                            <option value="fee" ${rate.offerType === "fee" ? "selected" : ""}>خصم على المصاريف</option>
-                            <option value="both" ${rate.offerType === "both" ? "selected" : ""}>خصم شامل</option>
-                            <option value="zero-fee" ${rate.offerType === "zero-fee" ? "selected" : ""}>بدون مصاريف إدارية</option>
-                        </select>
-                    </td>
-                `;
-                ratesTableBody.appendChild(row);
+            try {
+                ratesTableBody.innerHTML = '';
+                
+                for (const [months, rate] of Object.entries(currentSettings.rates)) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${months}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="number" step="0.1" value="${rate.interest}"
+                                    class="interest-input w-full px-2 py-1 border border-gray-300 rounded"
+                                    data-months="${months}">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="number" step="0.1" value="${rate.fee}"
+                                    class="fee-input w-full px-2 py-1 border border-gray-300 rounded"
+                                    data-months="${months}">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="checkbox" ${rate.available ? 'checked' : ''}
+                                    class="available-input h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    data-months="${months}">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <select class="offer-type-input w-full px-2 py-1 border border-gray-300 rounded" data-months="${months}">
+                                <option value="none" ${rate.offerType === "none" ? "selected" : ""}>بدون عرض</option>
+                                <option value="interest" ${rate.offerType === "interest" ? "selected" : ""}>خصم على الفوائد</option>
+                                <option value="fee" ${rate.offerType === "fee" ? "selected" : ""}>خصم على المصاريف</option>
+                                <option value="both" ${rate.offerType === "both" ? "selected" : ""}>خصم شامل</option>
+                                <option value="zero-fee" ${rate.offerType === "zero-fee" ? "selected" : ""}>بدون مصاريف إدارية</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="checkbox" ${rate.featured ? 'checked' : ''}
+                                    class="featured-input h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                                    data-months="${months}">
+                        </td>
+                    `;
+                    ratesTableBody.appendChild(row);
+                }
+                
+                console.log("Rates table updated successfully");
+            } catch (error) {
+                console.error("Error updating rates table:", error);
             }
         }
 
         async function saveSettings() {
-            // Get all updated rates from the table
+            console.log("Saving settings...");
             const updatedRates = {};
             
             document.querySelectorAll('.interest-input').forEach(input => {
@@ -1012,7 +3297,8 @@
                     interest: parseFloat(input.value),
                     fee: parseFloat(document.querySelector(`.fee-input[data-months="${months}"]`).value),
                     available: document.querySelector(`.available-input[data-months="${months}"]`).checked,
-                    offerType: document.querySelector(`.offer-type-input[data-months="${months}"]`).value
+                    offerType: document.querySelector(`.offer-type-input[data-months="${months}"]`).value,
+                    featured: document.querySelector(`.featured-input[data-months="${months}"]`).checked
                 };
             });
             
@@ -1035,34 +3321,36 @@
                 displayCurrentOffers();
                 
                 showToast("تم حفظ الإعدادات بنجاح");
+                console.log("Settings saved successfully");
             } catch (error) {
                 console.error("Error saving settings:", error);
                 showToast("حدث خطأ أثناء حفظ الإعدادات");
             } finally {
                 // Reset button
                 saveSettingsBtn.disabled = false;
-                saveSettingsBtn.textContent = 'حفظ الإعدادات';
+                saveSettingsBtn.innerHTML = 'حفظ الإعدادات';
             }
         }
 
         async function updateCredentials() {
+            console.log("Updating credentials...");
             const username = newUsername.value.trim();
             const password = newPassword.value;
             const confirm = confirmPassword.value;
             const email = adminEmail.value.trim();
             
             if (!username || !password || !confirm || !email) {
-                alert("الرجاء ملء جميع الحقول");
+                showToast("الرجاء ملء جميع الحقول");
                 return;
             }
             
             if (password !== confirm) {
-                alert("كلمة المرور وتأكيدها غير متطابقين");
+                showToast("كلمة المرور وتأكيدها غير متطابقين");
                 return;
             }
             
-            if (!validateEmail(email) && email !== "") {
-                alert("الرجاء إدخال بريد إلكتروني صحيح");
+            if (!validateEmail(email)) {
+                showToast("الرجاء إدخال بريد إلكتروني صحيح");
                 return;
             }
             
@@ -1081,20 +3369,20 @@
                 // Save to Firebase
                 await database.ref('credentials').set(adminCredentials);
                 
-                // Send email (simulated)
-                console.log(`Email sent to ${email} with new credentials`);
-                
-                showToast("تم تحديث بيانات الدخول بنجاح وإرسالها إلى بريدك الإلكتروني");
+                showToast("تم تحديث بيانات الدخول بنجاح");
+                console.log("Credentials updated successfully");
             } catch (error) {
                 console.error("Error updating credentials:", error);
                 showToast("حدث خطأ أثناء تحديث بيانات الدخول");
             } finally {
                 // Reset button
                 updateCredentialsBtn.disabled = false;
+                updateCredentialsBtn.innerHTML = 'تحديث بيانات الدخول';
             }
         }
 
         function updateAdminDashboard() {
+            console.log("Updating admin dashboard...");
             // Count available offers
             let availableCount = 0;
             for (const rate of Object.values(currentSettings.rates)) {
@@ -1109,31 +3397,13 @@
                 }
             }
             
-            currentOffersCount.textContent = availableCount;
-            minInterest.textContent = minRate !== Infinity ? minRate + '%' : '0%';
-            lastUpdated.textContent = currentSettings.lastUpdated;
+            if(currentOffersCount) currentOffersCount.textContent = availableCount;
+            if(minInterest) minInterest.textContent = minRate !== Infinity ? minRate + '%' : '0%';
+            if(lastUpdated) lastUpdated.textContent = currentSettings.lastUpdated;
+            
+            console.log("Admin dashboard updated");
         }
         
-        // Apply for loan
-        function applyForLoan() {
-            showToast("تم إرسال طلب التمويل بنجاح، سيتم التواصل معك قريبًا");
-            
-            // Simulate updating statistics
-            const total = parseInt(totalApplications.textContent.replace(/,/g, '')) + 1;
-            const approved = parseInt(approvedApplications.textContent.replace(/,/g, ''));
-            const pending = parseInt(pendingApplications.textContent.replace(/,/g, '')) + 1;
-            const rejected = parseInt(rejectedApplications.textContent.replace(/,/g, ''));
-            
-            totalApplications.textContent = total.toLocaleString();
-            pendingApplications.textContent = pending.toLocaleString();
-            
-            // After 3 seconds, simulate approval
-            setTimeout(() => {
-                approvedApplications.textContent = (approved + 1).toLocaleString();
-                pendingApplications.textContent = (pending - 1).toLocaleString();
-            }, 3000);
-        }
-
         // Utility functions
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
@@ -1165,6 +3435,64 @@
                 toast.remove();
             }, 3000);
         }
+
+        // تحديث أزرار الصفحة لاستخدام التصميم الجديد
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                if (button.classList.contains('bg-blue-600') || 
+                    button.classList.contains('gradient-bg')) {
+                    button.classList.add('gradient-btn');
+                }
+            });
+        });
+
+        // دالة حساب قيمة القسط الشهري
+        function calculateMonthlyPayment(amount, interestRate, months) {
+            // تحويل نسبة الفائدة السنوية إلى شهرية
+            const monthlyRate = (interestRate / 100) / 12;
+            
+            // حساب القسط الشهري باستخدام معادلة القرض
+            const payment = amount * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+            
+            return Math.round(payment);
+        }
+
+        // إضافة السكريبت قبل نهاية الـ body
+        // ... existing code ...
+    </script>
+    
+    <!-- تحسين تفاعلات الهيدر -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('header.gradient-bg');
+            let lastScroll = 0;
+            
+            // إضافة تأثير السكرول
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                
+                if (currentScroll > lastScroll && currentScroll > 100) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+                
+                lastScroll = currentScroll;
+            });
+            
+            // تحسين تفاعل اللوجو
+            const logo = document.querySelector('header .logo');
+            if(logo) {
+                logo.addEventListener('mouseover', () => {
+                    logo.style.transform = 'scale(1.05) rotate(2deg)';
+                });
+                
+                logo.addEventListener('mouseout', () => {
+                    logo.style.transform = 'scale(1) rotate(0deg)';
+                });
+            }
+        });
     </script>
 </body>
 </html>
