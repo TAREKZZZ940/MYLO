@@ -2992,7 +2992,8 @@
                                      (Math.pow(1 + monthlyInterestRate, monthsInt) - 1);
                 
                 const adminFee = rate.offerType === "zero-fee" ? 0 : financedAmount * (rate.fee / 100);
-                const totalCost = totalAmountWithInterest + adminFee;
+                // تعديل حساب إجمالي المبلغ المستحق ليكون بدون المصاريف الإدارية
+                const totalCost = totalAmountWithInterest;
                 
                 // إضافة الشارة (Badge) إذا كان هناك عرض
                 let badgeHTML = '';
